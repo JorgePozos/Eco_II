@@ -1,0 +1,78 @@
+---
+title: "Evidencia 2: Comparativo de Modelos"
+author: "Jorge Uriel Barragan Pozos"
+date: "1/7/2022"
+output: 
+    pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(stargazer)
+library(knitr)
+library(broom)
+library(haven)
+
+edu_inc <- read_dta("edu_inc.dta")
+attach(edu_inc)
+
+```
+
+## Comparativo de modelos
+
+Se compararan 4 modelos en los incluiremos, o no, algunas variables y se estudiaran el comportamiento de las variables que resultan irrelevantes para el modelo. Utilizaremos la siguiente base de datos:
+
+```{r cars}
+summary(edu_inc)
+```
+
+## Definimos los Modelos
+
+```{r modelos, echo=TRUE}
+mod1 <- lm(faminc~he+we,edu_inc)
+
+
+mod2 <- lm(faminc~he,edu_inc)
+
+
+mod3 <- lm(faminc~he+we+kl6,edu_inc)
+
+
+mod4 <- lm(faminc~he+we+kl6+xtra_x5+xtra_x6,edu_inc)
+
+
+
+```
+
+\newpage
+## Comparamos los Modelos
+
+```{r knitr::kable(star)}
+star <- stargazer(mod1, mod2, mod3, mod4, type="text", title = "Comparación modelos", align = TRUE, 
+          out ="tabla1.txt", flip = TRUE, digits = 1)
+
+```
+
+Primero se puede observar que en el primer modelo, el termino constante no es significativo para el modelo y el modelo explica el 20 porciento de los datos.
+En el segundo modelo, que considera dos variables, vemos que ambas y el termino constante son signiificativas. Sin embargo, la R^2 se reduce, de forma que el modelo explica solo el 10 por ciento de los datos.
+Para el modelo 3, se observa que incluyendo la variable kl6 que es significativa para el modelo, vuelve a incrementar la R^2 y de nuevo el termino constante no es significativo.
+Finalmente, para el modelo 4 que incluye las variables xtra_x5 y xtra_x6 vemos que la R^2 es muy parecida a la de los demás modelos y además las nuevas variables no son significativas para el modelo.
+
+## ¿Cuál es la diferencia entre las variables omitidas y las variables irrelevantes? 
+Se puede observar los modelos 3 y 4, el cuarto incluye las variables irrelevantes y el tercero omite estas variables, la principal diferencia que se puede observar es en el estadístico F.
+
+# Estadisticos de informacion 
+```{r}
+r1 <- as.numeric(glance(mod1))
+r2 <- as.numeric(glance(mod2))
+r3 <- as.numeric(glance(mod3))
+r4 <- as.numeric(glance(mod4))
+
+tab <- data.frame(rbind(r1 , r2, r3, r4))[,c(1,2,8,9)]
+
+kable(tab,caption="Comparación de los modelos, 'faminc' ", digits=4,col.names=c("Rsq","AdjRsq","AIC","BIC"))
+
+```
+
